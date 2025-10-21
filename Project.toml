@@ -1,0 +1,11 @@
+name = "ArushaRecharge"
+uuid = "f72b5dbe-edc1-41b0-a58a-334f1876733e"
+version = "0.0.1"
+authors = ["vcantarella <vcantarella@gmail.com> and contributors"]
+
+[deps]
+KernelAbstractions = "63c18a36-062a-441e-b654-da1e3ab1ce7c"
+
+[compat]
+KernelAbstractions = "0.9.38"
+julia = "1.10"
