@@ -4,8 +4,16 @@ version = "0.0.1"
 authors = ["vcantarella <vcantarella@gmail.com> and contributors"]
 
 [deps]
+ArchGDAL = "c9ce4bd3-c3d5-55b8-8973-c0e20141b8c3"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 KernelAbstractions = "63c18a36-062a-441e-b654-da1e3ab1ce7c"
 
 [compat]
+ArchGDAL = "0.10.10"
+CSV = "0.10.15"
+DataFrames = "1.8.1"
+JLD2 = "0.5.15"
 KernelAbstractions = "0.9.38"
 julia = "1.10"
