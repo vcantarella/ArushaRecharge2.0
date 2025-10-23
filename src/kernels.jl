@@ -26,11 +26,11 @@ based on the ratio of available to threshold soil moisture.
 
 This function is generic and works with any numeric type (Float32, Float64, etc.).
 """
-@inline function compute_actual_et(pet, kc, soil_storage, soil_et)
+@inline function compute_actual_et(pet, kc, soil_storage, soil_et, soil_cap, soil_ext_depth)
     if soil_storage > soil_et
         return pet * kc
     else
-        return pet * kc * (soil_storage / soil_et)
+        return pet * kc * (soil_storage / (soil_cap * soil_ext_depth))
     end
 end
 
@@ -64,7 +64,7 @@ recharge = compute_recharge(95.0, 100.0, 1.0, 10.0)  # Returns 5.0 mm
 ```
 """
 @inline function compute_recharge(soil_storage, soil_cap, soil_ext_depth, prec)
-    return max(0.0, soil_storage + prec - soil_cap * soil_ext_depth)
+    return max(zero(soil_storage), soil_storage + prec - soil_cap * soil_ext_depth)
 end
 
 """
@@ -128,8 +128,8 @@ runoff = compute_runoff(15.0, 10.0)  # Returns 5.0 mm
 # See Also
 - [`compute_eff_precip`](@ref): Calculates the infiltrating portion of precipitation
 """
-@inline function compute_runoff(prec, threshold)
-    return max(0.0, prec - threshold)
+@inline function compute_runoff(prec, eff_prec)
+    return max(zero(prec), prec - eff_prec)
 end
 
 
@@ -172,7 +172,7 @@ The time loop is inside the kernel (GPU-optimized). Each thread processes one sp
 through all time steps.
 """
 @kernel function water_balance_timeseries!(
-    total_actet, total_recharge, total_runoff, total_eff_prec,
+    total_actet, total_recharge, total_runoff, total_prec,
     soil_storage,  # initial/final storage
     @Const(prec), @Const(pet), @Const(landuse), @Const(soil),
     @Const(thresh_prec_array), @Const(crop_coeff_array),
@@ -185,37 +185,40 @@ through all time steps.
     kc = crop_coeff_array[landuse[i]]
     soil_cap = soil_cap_array[soil[i]]
     soil_ext_depth = soil_ext_depth_array[landuse[i]]
-    
-    # Initialize accumulators for this cell
-    actet_sum = 0.0
-    recharge_sum = 0.0
-    runoff_sum = 0.0
-    eff_prec_sum = 0.0
+    soil_et = soil_ext_depth * soil_cap * 0.5f0
+    # Example: ET threshold as half of extraction depth
     
     storage = soil_storage[i]  # local copy
+    
+    # Initialize accumulators for this cell (use zero(T) to match input type)
+    T = typeof(storage)
+    actet_sum = zero(T)
+    recharge_sum = zero(T)
+    runoff_sum = zero(T)
+    prec_sum = zero(T)
     
     # Time loop for this grid cell
     @inbounds for t in 1:n_timesteps
         # Compute water balance for time step t
-        actet_t = compute_actual_et(pet[t], kc[i], storage, soil_ext_depth)
         eff_prec_t = compute_eff_precip(prec[t], threshold)
-        runoff_t = compute_runoff(prec[t], threshold)
+        runoff_t = compute_runoff(prec[t], eff_prec_t)
         recharge_t = compute_recharge(storage, soil_cap, soil_ext_depth, eff_prec_t)
         
         # Update storage
-        storage += eff_prec_t - actet_t - recharge_t
-        
+        storage += eff_prec_t - recharge_t
+        actet_t = compute_actual_et(pet[t], kc, storage, soil_et, soil_cap, soil_ext_depth)
+        storage -= actet_t
         # Accumulate
         actet_sum += actet_t
         recharge_sum += recharge_t
         runoff_sum += runoff_t
-        eff_prec_sum += eff_prec_t
+        prec_sum += prec[t]
     end
     
     # Write final results
-    total_actet[i] += actet_sum
-    total_recharge[i] += recharge_sum
-    total_runoff[i] += runoff_sum
-    total_eff_prec[i] += eff_prec_sum
-    soil_storage[i] += storage
+    total_actet[i] = actet_sum
+    total_recharge[i] = recharge_sum
+    total_runoff[i] = runoff_sum
+    total_prec[i] = prec_sum
+    soil_storage[i] = storage
 end

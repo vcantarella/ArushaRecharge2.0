@@ -1,7 +1,26 @@
 import ArchGDAL as AG
 using JLD2
 include("lookuptable_management.jl")
-landuseds = AG.readraster("arusha_recharge/LULC Input/2020_Landuse.map")
+
+# Configuration: set target resolution (in meters)
+# Options: 250 (original), 100, 50, 30
+TARGET_RESOLUTION = 30  # Change this to desired resolution
+
+# Determine which files to load based on resolution
+if TARGET_RESOLUTION == 250
+    # Use original files
+    landuse_file = "arusha_recharge/LULC Input/2020_Landuse.map"
+    soil_file = "arusha_recharge/Other input/soil.map"
+    println("Using original 250m resolution datasets")
+else
+    # Use resampled files
+    landuse_file = "arusha_recharge/LULC Input/2020_Landuse_$(TARGET_RESOLUTION)m.tif"
+    soil_file = "arusha_recharge/Other input/soil_$(TARGET_RESOLUTION)m.tif"
+    println("Using resampled $(TARGET_RESOLUTION)m resolution datasets")
+end
+
+# Load landuse
+landuseds = AG.readraster(landuse_file)
 AG.getdriver(landuseds)
 AG.nraster(landuseds) # nº of bands
 AG.width(landuseds)
@@ -13,11 +32,15 @@ p = AG.getproj(landuseds)
 AG.toPROJ4(AG.importWKT(p))
 unique(landuseds[:,:,1])
 landuse = landuseds[:,:,1]
+
+# Load other datasets (these don't need resampling for now)
 elevationds = AG.readraster("arusha_recharge/Other input/elevation.map")
 elevation = elevationds[:,:,1]
 slope = AG.readraster("arusha_recharge/Other input/slope.map")
 slope = slope[:,:,1]
-soiltypeds = AG.readraster("arusha_recharge/Other input/soil.map")
+
+# Load soil with resolution-aware file
+soiltypeds = AG.readraster(soil_file)
 soiltype = soiltypeds[:,:,1]
 # Saving the primitive datasets as JLD2 files
 @save "julia_datasets/landuse.jld2" landuse
@@ -38,26 +61,4 @@ normalized_soil, soiltype_mapping = normalize_lookup_dataset(soiltype)
 @save "julia_datasets/normalized_landuse.jld2" normalized_landuse landuse_mapping
 @save "julia_datasets/normalized_soiltype.jld2" normalized_soil soiltype_mapping
 
-#
-# | Land Use Type      | land use code | Crop Coef. |
-# |:-------------------|--------------:|-----------:|
-# | Urban              |             1 |        0.6 |
-# | Agriculture        |            21 |        1.5 |
-# | Deciduous forest   |            31 |        1.3 |
-# | Coniferous tree    |            32 |        1.2 |
-# | Mixed forest       |            33 |        1.2 |
-# | Shrub/Grassland    |            36 |        1.0 |
-# | Sparsely vegetated |           307 |        0.9 |
-threshold_precipitation_lookup = Dict(
-    1 => 0.6,
-    21 => 1.5,
-    31 => 1.3,
-    32 => 1.2,
-    33 => 1.2,
-    36 => 1.0,
-    307 => 0.9
-)
 
-
-
-arr = lookup_table_to_array(lookup_table, landuse_mapping)

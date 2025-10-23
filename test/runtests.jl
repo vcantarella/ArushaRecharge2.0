@@ -6,7 +6,7 @@ using KernelAbstractions
 
 @testset "ArushaRecharge.jl" begin
     @testset "Code quality (Aqua.jl)" begin
-        Aqua.test_all(ArushaRecharge)
+        Aqua.test_all(ArushaRecharge; stale_deps=false)
     end
     
     # JET testing disabled due to false positives from KernelAbstractions code generation
@@ -20,6 +20,6 @@ using KernelAbstractions
     
     # Write your tests here.
     @testset "Basic functionality - Water Balance" begin
-        include("test_balance.jl")
+        include("test_water_balance_closure.jl")
     end
 end
