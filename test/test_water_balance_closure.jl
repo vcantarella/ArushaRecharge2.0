@@ -4,8 +4,17 @@ using CSV, DataFrames, Dates
 
 @testset "Water balance closure for 1 year (CPU)" begin
     # Load base year data (2020)
-    prec_df = CSV.read("../arusha_recharge/Climate data/Precipitation_2020.csv", DataFrame)
-    pet_df = CSV.read("../arusha_recharge/Climate data/ET_2020.csv", DataFrame)
+        root = joinpath(@__DIR__, "..")
+        prec_path = joinpath(root, "arusha_recharge", "Climate data", "Precipitation_2020.csv")
+        pet_path = joinpath(root, "arusha_recharge", "Climate data", "ET_2020.csv")
+        if !isfile(prec_path)
+            error("Missing precipitation file: $prec_path. Please ensure the file exists and the path is correct.")
+        end
+        if !isfile(pet_path)
+            error("Missing ET file: $pet_path. Please ensure the file exists and the path is correct.")
+        end
+        prec_df = CSV.read(prec_path, DataFrame)
+        pet_df = CSV.read(pet_path, DataFrame)
     base_prec = prec_df[!, "Precipitation (mm/day)"]
     base_pet = pet_df[!, "ET (mm/day)"]
     base_timestamps = Date.(prec_df[!, "Date"], dateformat"dd/mm/yyyy")
