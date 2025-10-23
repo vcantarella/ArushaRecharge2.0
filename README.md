@@ -1,5 +1,3 @@
-
-
 # ArushaRecharge 2.0
 
 [![Build Status](https://github.com/vcantarella/ArushaRecharge.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/vcantarella/ArushaRecharge.jl/actions/workflows/CI.yml?query=branch%3Amain)
@@ -23,15 +21,25 @@ This project is not a full-featured hydrological model, but a minimal, reproduci
 
 ## Conceptual Model: Soil Water Balance
 
-The model simulates the daily water balance for each cell in a spatial grid, using the following conceptual steps:
-
-1. **Precipitation** is partitioned into effective infiltration and surface runoff, based on a land-use-dependent threshold.
-2. **Soil storage** is updated by adding effective precipitation and subtracting actual evapotranspiration (ET) and groundwater recharge.
-3. **Actual ET** is computed as a function of potential ET, crop coefficient, and soil moisture availability, according to the FAO model.
-4. **Recharge** occurs when soil storage exceeds capacity, with excess draining to groundwater.
-5. **Outputs** (runoff, ET, recharge) and change in storage are tracked for each timestep and aggregated by month/year.
-
-This is a classic "bucket" model, widely used in hydrology for its transparency and extensibility. All parameters (thresholds, crop coefficients, soil capacities) are set via lookup tables based on land use and soil type.
+<table>
+  <tr>
+    <td style="vertical-align:top; width:55%">
+      <b>Text description here:</b><br>
+      The model simulates the daily water balance for each cell in a spatial grid, using the following conceptual steps:
+      <ol>
+        <li><b>Precipitation</b> is partitioned into effective infiltration and surface runoff, based on a land-use-dependent threshold.</li>
+        <li><b>Soil storage</b> is updated by adding effective precipitation and subtracting actual evapotranspiration (ET) and groundwater recharge.</li>
+        <li><b>Actual ET</b> is computed as a function of potential ET, crop coefficient, and soil moisture availability.</li>
+        <li><b>Recharge</b> occurs when soil storage exceeds capacity, with excess draining to groundwater.</li>
+        <li><b>Outputs</b> (runoff, ET, recharge) and change in storage are tracked for each timestep and aggregated by month/year.</li>
+      </ol>
+      This is a classic "bucket" model, widely used in hydrology for its transparency and extensibility.
+    </td>
+    <td style="vertical-align:top; width:45%">
+      <img src="image.png" alt="Conceptual Model Diagram" width="100%">
+    </td>
+  </tr>
+</table>
 
 ---
 
