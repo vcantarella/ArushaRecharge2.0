@@ -19,8 +19,8 @@ println("=" ^ 70)
 
 # Load base year data (2020)
 println("\nLoading base year data...")
-prec_df = CSV.read("arusha_recharge/Climate data/Precipitation_2020.csv", DataFrame)
-pet_df = CSV.read("arusha_recharge/Climate data/ET_2020.csv", DataFrame)
+prec_df = CSV.read("input_data/Precipitation_2020.csv", DataFrame)
+pet_df = CSV.read("input_data/ET_2020.csv", DataFrame)
 base_prec = prec_df[!, "Precipitation (mm/day)"]
 base_pet = pet_df[!, "ET (mm/day)"]
 base_timestamps = Date.(prec_df[!, "Date"], dateformat"dd/mm/yyyy")

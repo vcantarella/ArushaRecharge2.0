@@ -5,8 +5,8 @@ using CSV, DataFrames, Dates
 @testset "Water balance closure for 1 year (CPU)" begin
     # Load base year data (2020)
         root = joinpath(@__DIR__, "..")
-        prec_path = joinpath(root, "arusha_recharge", "Climate data", "Precipitation_2020.csv")
-        pet_path = joinpath(root, "arusha_recharge", "Climate data", "ET_2020.csv")
+        prec_path = joinpath(root, "input_data", "Precipitation_2020.csv")
+        pet_path = joinpath(root, "input_data", "ET_2020.csv")
         if !isfile(prec_path)
             error("Missing precipitation file: $prec_path. Please ensure the file exists and the path is correct.")
         end

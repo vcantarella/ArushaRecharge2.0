@@ -37,9 +37,13 @@ carried forward between periods.
 ```julia
 
 
+
 # Load data with timestamps
-prec_df = CSV.read("arusha_recharge/Climate data/Precipitation_2020.csv", DataFrame)
-pet_df = CSV.read("arusha_recharge/Climate data/ET_2020.csv", DataFrame)
+root = joinpath(@__DIR__, "..")
+prec_path = joinpath(root, "input_data", "Precipitation_2020.csv")
+pet_path = joinpath(root, "input_data", "ET_2020.csv")
+prec_df = CSV.read(prec_path, DataFrame)
+pet_df = CSV.read(pet_path, DataFrame)
 prec = prec_df[!, "Precipitation (mm/day)"]
 pet = pet_df[!, "ET (mm/day)"]
 timestamps = Date.(prec_df[!, "Date"], dateformat"dd/mm/yyyy")
