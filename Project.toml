@@ -1,7 +1,7 @@
 name = "ArushaRecharge"
 uuid = "f72b5dbe-edc1-41b0-a58a-334f1876733e"
-version = "0.0.1"
 authors = ["vcantarella <vcantarella@gmail.com> and contributors"]
+version = "0.0.1"
 
 [deps]
 ArchGDAL = "c9ce4bd3-c3d5-55b8-8973-c0e20141b8c3"
@@ -21,7 +21,7 @@ BenchmarkTools = "1.6.3"
 CSV = "0.10.15"
 DataFrames = "1.8.1"
 Dates = "1.11.0"
-JLD2 = "0.5.15"
+JLD2 = "0.5.15, 0.6"
 KernelAbstractions = "0.9.38"
 Metal = "1.9.0"
 Plots = "1.41.1"
